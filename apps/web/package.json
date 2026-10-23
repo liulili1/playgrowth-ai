@@ -33,7 +33,7 @@
   },
   "type": "module",
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.64.0",
+    "@cloudflare/vite-plugin": "2.0.0-beta.v.4",
     "@cloudflare/workers-types": "^5.20261022.1",
     "@vitejs/plugin-rsc": "^0.5.38",
     "cf": "1.0.0-beta.20",

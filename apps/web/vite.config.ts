@@ -23,12 +23,6 @@ export default defineConfig({
   plugins: [
     vinext(),
     cloudflare({
-      experimental: {
-        // Read the Worker name, compatibility flags, assets, and D1 binding
-        // from cloudflare.config.ts instead of generating a default Wrangler
-        // configuration for this Vite build.
-        newConfig: true,
-      },
       viteEnvironment: {
         name: "rsc",
         childEnvironments: ["ssr"],
