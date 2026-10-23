@@ -1,4 +1,4 @@
-import { getMembershipEconomics } from '@/lib/membership-card-store';
+import { getMembershipEconomics } from '@/lib/membership-card-repository';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return NextResponse.json(getMembershipEconomics(candidate), {
-    headers: { 'Cache-Control': 'no-store', 'X-Data-Source': 'mock' },
+  const result = await getMembershipEconomics(candidate);
+  return NextResponse.json(result, {
+    headers: { 'Cache-Control': 'no-store', 'X-Data-Source': result.dataSource },
   });
 }

@@ -5,9 +5,7 @@ import {
   type MembershipCardRecord,
 } from '@playgrowth/contracts';
 
-const MOCK_AS_OF = '2026-10-23';
-
-const seededCards = MembershipCardRecordSchema.array().parse([
+export const seededMembershipCards = MembershipCardRecordSchema.array().parse([
   { cardId: 'MC-001', childId: 'CHILD-001', cardKind: 'MONTHLY_CARD', activatedAt: '2026-06-01', expiresAt: '2026-06-30', amountCents: 28800, renewedFromCardId: null, visitDays: 13, peakVisitDays: 5, activityAttendanceCount: 2, sourceCampaign: '朋友圈' },
   { cardId: 'MC-002', childId: 'CHILD-001', cardKind: 'MONTHLY_CARD', activatedAt: '2026-07-01', expiresAt: '2026-07-31', amountCents: 28800, renewedFromCardId: 'MC-001', visitDays: 9, peakVisitDays: 3, activityAttendanceCount: 1, sourceCampaign: '续卡' },
   { cardId: 'MC-003', childId: 'CHILD-002', cardKind: 'MONTHLY_CARD', activatedAt: '2026-06-06', expiresAt: '2026-07-05', amountCents: 28800, renewedFromCardId: null, visitDays: 15, peakVisitDays: 8, activityAttendanceCount: 0, sourceCampaign: '自然到店' },
@@ -18,9 +16,6 @@ const seededCards = MembershipCardRecordSchema.array().parse([
   { cardId: 'TC-003', childId: 'CHILD-102', cardKind: 'TIMES_CARD', activatedAt: '2026-06-08', expiresAt: '2026-09-05', amountCents: 32000, renewedFromCardId: null, visitDays: 10, peakVisitDays: 3, activityAttendanceCount: 2, sourceCampaign: '自然到店' },
   { cardId: 'TC-004', childId: 'CHILD-103', cardKind: 'TIMES_CARD', activatedAt: '2026-07-12', expiresAt: '2026-10-10', amountCents: 32000, renewedFromCardId: null, visitDays: 7, peakVisitDays: 2, activityAttendanceCount: 0, sourceCampaign: '会员群' },
 ]);
-
-let activeCards: MembershipCardRecord[] = seededCards;
-let activeSource: 'mock' | 'imported' = 'mock';
 
 const dateAsTime = (value: string) => new Date(`${value}T00:00:00.000Z`).getTime();
 const addDays = (value: string, days: number) => new Date(dateAsTime(value) + days * 86_400_000).toISOString().slice(0, 10);
@@ -39,26 +34,32 @@ function uniqueFirstCards(cards: readonly MembershipCardRecord[]) {
   );
 }
 
-function economicsRow(cardKind: CardKind, windowDays: 30 | 60 | 90, asOf: string) {
-  const firstCards = uniqueFirstCards(activeCards).filter((card) => card.cardKind === cardKind);
+function economicsRow(
+  cards: readonly MembershipCardRecord[],
+  cardKind: CardKind,
+  windowDays: 30 | 60 | 90,
+  asOf: string,
+) {
+  const firstCards = uniqueFirstCards(cards).filter((card) => card.cardKind === cardKind);
   const eligible = firstCards.filter((card) => addDays(card.activatedAt, windowDays) <= asOf);
   const observing = firstCards.length - eligible.length;
   const eligibleChildIds = new Set(eligible.map((card) => card.childId));
   const revenue = eligible.reduce((sum, card) => {
     const windowEndsAt = addDays(card.activatedAt, windowDays);
-    const childRevenue = activeCards
+    const childRevenue = cards
       .filter((candidate) => candidate.childId === card.childId)
       .filter((candidate) => candidate.activatedAt >= card.activatedAt && candidate.activatedAt <= windowEndsAt)
       .reduce((childSum, candidate) => childSum + candidate.amountCents, 0);
     return sum + childRevenue;
   }, 0);
-  const renewals = eligible.map((card) => activeCards.find((candidate) => candidate.renewedFromCardId === card.cardId)).filter(
-    (card): card is MembershipCardRecord => Boolean(card),
-  ).filter((card) => card.activatedAt <= addDays(activeCards.find((candidate) => candidate.cardId === card.renewedFromCardId)?.expiresAt ?? card.activatedAt, 30));
+  const renewals = eligible
+    .map((card) => cards.find((candidate) => candidate.renewedFromCardId === card.cardId))
+    .filter((card): card is MembershipCardRecord => Boolean(card))
+    .filter((card) => card.activatedAt <= addDays(cards.find((candidate) => candidate.cardId === card.renewedFromCardId)?.expiresAt ?? card.activatedAt, 30));
   const sameKindRenewals = renewals.filter((card) => card.cardKind === cardKind);
   const switchedRenewals = renewals.filter((card) => card.cardKind !== cardKind);
-  const cardsInWindow = activeCards.filter((candidate) => {
-    const first = uniqueFirstCards(activeCards).find((item) => item.childId === candidate.childId);
+  const cardsInWindow = cards.filter((candidate) => {
+    const first = uniqueFirstCards(cards).find((item) => item.childId === candidate.childId);
     if (!first || !eligibleChildIds.has(candidate.childId) || first.cardKind !== cardKind) return false;
     return candidate.activatedAt >= first.activatedAt && candidate.activatedAt <= addDays(first.activatedAt, windowDays);
   });
@@ -84,10 +85,15 @@ function economicsRow(cardKind: CardKind, windowDays: 30 | 60 | 90, asOf: string
   };
 }
 
-export function getMembershipEconomics(windowDays: 30 | 60 | 90 = 90) {
+export function calculateMembershipEconomics(
+  cards: readonly MembershipCardRecord[],
+  dataSource: 'mock' | 'imported',
+  windowDays: 30 | 60 | 90 = 90,
+  asOf = new Date().toISOString().slice(0, 10),
+) {
   const rows = [
-    economicsRow('MONTHLY_CARD', windowDays, MOCK_AS_OF),
-    economicsRow('TIMES_CARD', windowDays, MOCK_AS_OF),
+    economicsRow(cards, 'MONTHLY_CARD', windowDays, asOf),
+    economicsRow(cards, 'TIMES_CARD', windowDays, asOf),
   ];
   const warnings = rows.flatMap((row) => {
     const messages: string[] = [];
@@ -97,20 +103,11 @@ export function getMembershipEconomics(windowDays: 30 | 60 | 90 = 90) {
   });
 
   return MembershipEconomicsSchema.parse({
-    dataSource: activeSource,
-    asOf: MOCK_AS_OF,
+    dataSource,
+    asOf,
     windowDays,
     rows,
     warnings,
     generatedAt: new Date().toISOString(),
   });
-}
-
-export function replaceMembershipCards(rows: MembershipCardRecord[]) {
-  activeCards = MembershipCardRecordSchema.array().parse(rows);
-  activeSource = 'imported';
-}
-
-export function getMembershipImportStatus() {
-  return { dataSource: activeSource, totalCards: activeCards.length } as const;
 }

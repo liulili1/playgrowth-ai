@@ -101,7 +101,7 @@ export function ImportsScreen() {
           </div>
           {importer.data.status === 'IMPORTED' ? (
             <div className="import-success-callout">
-              <p>当前服务器内存中的 Mock 数据已替换。刷新服务后会恢复默认演示数据。</p>
+              <p>卡明细已保存到 D1，并替换当前演示数据；重新打开或重启 Worker 后仍会保留。</p>
               <Link className="primary-button" href="/membership/economics">查看月卡 vs 次卡分析</Link>
             </div>
           ) : (

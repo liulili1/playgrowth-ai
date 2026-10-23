@@ -4,10 +4,11 @@
   "private": true,
   "packageManager": "pnpm@11.5.2",
   "scripts": {
-    "dev": "pnpm --parallel --filter @playgrowth/web --filter @playgrowth/worker dev",
+    "dev": "pnpm --filter @playgrowth/web dev",
     "dev:web": "pnpm --filter @playgrowth/web dev",
     "dev:worker": "pnpm --filter @playgrowth/worker dev",
-    "build": "pnpm --filter @playgrowth/web build && pnpm --filter @playgrowth/worker build",
+    "build": "pnpm --filter @playgrowth/web build",
+    "deploy": "pnpm --filter @playgrowth/web deploy",
     "typecheck": "pnpm -r --if-present typecheck",
     "format:check": "echo 'Formatting and test runners are added with the Phase 1 CI setup.'"
   },

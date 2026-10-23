@@ -1,10 +1,9 @@
 import { MembershipImportResultSchema } from '@playgrowth/contracts';
-import { replaceMembershipCards } from '@/lib/membership-card-store';
+import { replaceMembershipCards } from '@/lib/membership-card-repository';
 import { parseMembershipCardImport } from '@/lib/spreadsheet-import';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
 
 const maxFileSize = 2 * 1024 * 1024;
 
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
       content: await candidate.arrayBuffer(),
     });
     const status = result.errors.length === 0 && result.rows.length > 0 ? 'IMPORTED' : 'REJECTED';
-    if (status === 'IMPORTED') replaceMembershipCards(result.rows);
+    if (status === 'IMPORTED') await replaceMembershipCards(result.rows, candidate.name);
 
     return NextResponse.json(
       MembershipImportResultSchema.parse({

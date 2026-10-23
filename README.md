@@ -9,32 +9,31 @@
 - 卡种经营看板：累计实收、单客实收、30 天续卡率、到店天数、峰时占比与活动参与率。
 - 30 / 60 / 90 天首购 cohort 观察窗口与样本不足提示。
 
-这是一个演示版闭环：导入数据暂存于服务进程内存，重启服务后会恢复内置 Mock 数据；持久化数据库与真实购卡/签到流水接入留待下一阶段。
+这是一个可部署的最小闭环：在 Cloudflare Workers 上运行，并将导入数据保存到 Cloudflare D1。首次访问会写入内置 Mock 数据；成功导入 CSV/XLSX 后，数据会持久化并立即参与月卡/次卡分析。
 
 ## 架构
 
 ```text
-apps/web       Next.js 前端 + BFF API
+apps/web       Vinext/Next.js 前端 + Workers BFF API + D1 访问层
 apps/worker    异步任务 Worker（当前为健康占位）
 packages/*     共享配置、领域、契约、UI 包
-infra/compose  本地 PostgreSQL / Redis / MinIO
+infra/compose  后续阶段的本地基础设施草案
 ```
 
-采用模块化单体，而不是过早拆分微服务。业务事实将由 PostgreSQL 持有；AI、异步任务和外部集成均通过受控边界接入。
+采用模块化单体，而不是过早拆分微服务。当前 MVP 的会员卡经营事实由 D1 持有；AI、异步任务和外部集成均通过受控边界接入。
 
 ## 本地启动
 
 ```bash
-cp .env.example .env
 pnpm install
 pnpm dev
 ```
 
-- 管理台：`http://localhost:3000/overview`
-- 数据导入：`http://localhost:3000/imports`
-- 会员经营：`http://localhost:3000/membership/economics`
-- 健康检查：`http://localhost:3000/api/health`
-- Worker：运行在 `pnpm dev` 的第二个进程中
+- 管理台：`http://localhost:3001/overview`
+- 数据导入：`http://localhost:3001/imports`
+- 会员经营：`http://localhost:3001/membership/economics`
+- 健康检查：`http://localhost:3001/api/health`
+- 本地数据：由 Cloudflare Vite 插件提供的 Miniflare D1 模拟。
 
 如需本地基础设施：
 
@@ -47,12 +46,13 @@ docker compose -f infra/compose/docker-compose.yml up -d
 ```bash
 pnpm typecheck
 pnpm build
+pnpm deploy
 ```
 
-当前验收以类型检查、健康检查、生产构建，以及 CSV/XLSX 导入到经营看板的最小闭环为准。
+当前验收以类型检查、Workers 生产构建，以及 CSV/XLSX 导入到 D1 后的经营看板分析为准。具体部署步骤见 [Cloudflare 部署说明](docs/cloudflare-deployment.md)。
 
 ## 阶段边界
 
 - 阶段 0：✅ 初始化仓库、UI Shell、Mock 数据、健康检查、Worker 与基础设施定义。
 - 阶段 1：✅ 模板下载、CSV/XLSX 导入、卡种数据校验、月卡/次卡 cohort 看板。
-- 阶段 2+：⏸️ 活动内容工厂、Agent/审批、玩具租赁、部署与复盘。
+- 阶段 2+：⏸️ 活动内容工厂、Agent/审批、玩具租赁、真实购卡/签到流水接入与复盘。

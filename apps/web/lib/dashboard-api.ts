@@ -37,7 +37,9 @@ export async function importMembershipCards(file: File): Promise<MembershipImpor
   const parsedResult = MembershipImportResultSchema.safeParse(payload);
   if (parsedResult.success) return parsedResult.data;
   if (!response.ok) {
-    const detail = payload?.message ?? `请求失败（${response.status}）`;
+    const detail = typeof payload === 'object' && payload && 'message' in payload && typeof payload.message === 'string'
+      ? payload.message
+      : `请求失败（${response.status}）`;
     throw new Error(detail);
   }
   return MembershipImportResultSchema.parse(payload);
