@@ -1,0 +1,5 @@
+cardId,childId,cardKind,activatedAt,expiresAt,amountCents,renewedFromCardId,visitDays,peakVisitDays,activityAttendanceCount,sourceCampaign
+MC-001,CHILD-001,MONTHLY_CARD,2026-07-01,2026-07-31,28800,,11,4,2,朋友圈
+MC-002,CHILD-001,MONTHLY_CARD,2026-08-01,2026-08-31,28800,MC-001,8,2,1,续卡
+TC-001,CHILD-002,TIMES_CARD,2026-07-03,2026-09-30,32000,,7,3,0,自然到店
+TC-002,CHILD-003,TIMES_CARD,2026-07-05,2026-09-30,32000,,9,5,1,会员群

@@ -1,0 +1,17 @@
+{
+  "name": "@playgrowth/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@playgrowth/config": "workspace:*",
+    "@playgrowth/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "latest"
+  }
+}

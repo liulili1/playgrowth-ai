@@ -1,0 +1,20 @@
+{
+  "name": "playgrowth-ai",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.5.2",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @playgrowth/web --filter @playgrowth/worker dev",
+    "dev:web": "pnpm --filter @playgrowth/web dev",
+    "dev:worker": "pnpm --filter @playgrowth/worker dev",
+    "build": "pnpm --filter @playgrowth/web build && pnpm --filter @playgrowth/worker build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "format:check": "echo 'Formatting and test runners are added with the Phase 1 CI setup.'"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest"
+  }
+}

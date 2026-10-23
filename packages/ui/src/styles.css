@@ -1,0 +1,18 @@
+:root {
+  --pg-brand-900: #123f3b;
+  --pg-brand-700: #1e645d;
+  --pg-brand-100: #e7f6f1;
+  --pg-accent-coral: #ff6f4e;
+  --pg-accent-yellow: #ffd660;
+  --pg-accent-lavender: #b8a9ff;
+  --pg-surface-page: #fff9f0;
+  --pg-surface-card: #ffffff;
+  --pg-surface-muted: #f3f7f6;
+  --pg-text-primary: #14211f;
+  --pg-text-secondary: #5d6a67;
+  --pg-status-success: #32b982;
+  --pg-status-warning: #f2b642;
+  --pg-status-danger: #f06b61;
+  --pg-status-info: #7a6ff0;
+  --pg-font-sans: Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}

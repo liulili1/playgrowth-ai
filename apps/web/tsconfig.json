@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "paths": {
+      "@/*": ["./*"],
+      "@playgrowth/config": ["../../packages/config/src/index.ts"],
+      "@playgrowth/contracts": ["../../packages/contracts/src/index.ts"],
+      "@playgrowth/domain": ["../../packages/domain/src/index.ts"],
+      "@playgrowth/ui": ["../../packages/ui/src/index.ts"]
+    },
+    "plugins": [{ "name": "next" }],
+    "incremental": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

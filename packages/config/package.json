@@ -1,0 +1,14 @@
+{
+  "name": "@playgrowth/config",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "latest"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
